@@ -1,4 +1,4 @@
-package cl.lherrera.rc.fechas.fechas;
+package cl.lherrera.rc.fechas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

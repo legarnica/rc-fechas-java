@@ -1,4 +1,4 @@
-package cl.lherrera.rc.fechas.fechas;
+package cl.lherrera.rc.fechas;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
