@@ -193,17 +193,88 @@ public class FechasUtil {
         long primeraEnMilisegundos = fechaUno.getTime();
         long segundaEnMilisegundos = fechaDos.getTime();
         long diferenciaEnMilisegundos = primeraEnMilisegundos - segundaEnMilisegundos;
-
         // para sacar los negativos
         long diferenciaAbsoluta = Math.abs(diferenciaEnMilisegundos);
-
         // convierte a días, esta diferencia en milisegundos, desde milisegundos a días.
         long diasDeDiferencia = TimeUnit.DAYS.convert(diferenciaAbsoluta, TimeUnit.MILLISECONDS);
-
-
         return (int) diasDeDiferencia;
     }
 
+    /**
+     * Entrega la direfencia de cantidad enteras de segundos entre dos fechas.
+     */
+    public static int diferenciaFechasEnSegundos(Date primeraFecha, Date segundaFecha) {
+        long diferenciaEnMilisegundos = Math.abs(primeraFecha.getTime() - segundaFecha.getTime());
+        long diferenciaEnSegundos = TimeUnit.SECONDS.convert(diferenciaEnMilisegundos, TimeUnit.MILLISECONDS);
+        return (int) diferenciaEnSegundos;
+    }
+    /**
+     * Se usa solamente para probar diferenciaFechasEnSegundos()
+     */
+    private static void pruebaDiferenciaFechasEnSegundos() {
+        String fechaLitUno = "01-01-2020 23:59:59";
+        String fechaLitDos = "01-01-2020 23:59:57";
+
+        int diff = diferenciaFechasEnSegundos(
+                parseaStringAFecha(fechaLitUno),
+                parseaStringAFecha(fechaLitDos));
+        System.out.println(diff);
+
+    }
+
+    /**
+     * Obtiene un literal con la difererencia desde una fecha a la actual,
+     * como las que se entrega en los post de redes sociales para indicar
+     * la antiguedad de una noticia. Una salida de ejemplo sería:
+     * "366 días, 0 horas, 1 minutos y 16 segundos".
+     *
+     * Nota: La forma en que se entrega el literal puede variar, se
+     * podría ir concatenando una cadena si es que los valores
+     * son superiores a cero, si se quiere mostrar solamente
+     * aquellos que poseen valor, entre otros.
+     *
+     * Nota 2: Esta forma utiliza el cálculo de milisegundos, también es una alternativa el
+     * obtener los milisegundos y cada 3600000 calcular una hora por ejemplo, aunque
+     * el approach utilizado me parece más correcto debido a que se utiliza
+     * la API oficial de java.
+     *
+     * Nota 3: Se definen las localidades en ambas fechas, la actual que se calcula por sistema
+     * y la entregada como parámetro. Esto para que tenga sentido realizar operaciones entre
+     * fechas homogeneas. Por ejemplo puede llegar una fecha en UTC, entonces se asume que se quiere
+     * constrastar con una fecha del equipo (local), esta estará con el TimeZone local, por eso
+     * la fecha entregada por parámetro se reconfigura a local en este método.
+     */
+    public static String obtenerDiferenciaLiteralConFechaActual(Date fechaNoActual) {
+        String diferenciaLiteral = "%d días, %d horas, %d minutos y %d segundos";
+        TimeZone zonaHoraria = TimeZone.getTimeZone("America/Santiago");
+        Locale localidad = new Locale("es", "CH");
+        Date fechaActual = GregorianCalendar.getInstance(zonaHoraria, localidad).getTime();
+        Date copiaLocalDeFechaNoActual = GregorianCalendar.getInstance(zonaHoraria, localidad).getTime();
+        copiaLocalDeFechaNoActual.setTime(fechaNoActual.getTime());
+
+        long diffMilisegundos = Math.abs(fechaActual.getTime() - copiaLocalDeFechaNoActual.getTime());
+        long dias = TimeUnit.DAYS.convert(diffMilisegundos, TimeUnit.MILLISECONDS);
+        long remanenteDias = diffMilisegundos - TimeUnit.MILLISECONDS.convert(dias, TimeUnit.DAYS);
+        long horas = TimeUnit.HOURS.convert(remanenteDias, TimeUnit.MILLISECONDS);
+        long remanenteHoras = remanenteDias - TimeUnit.MILLISECONDS.convert(horas, TimeUnit.HOURS);
+        long minutos = TimeUnit.MINUTES.convert(remanenteHoras, TimeUnit.MILLISECONDS);
+        long remanenteMinutos = remanenteHoras - TimeUnit.MILLISECONDS.convert(minutos, TimeUnit.MINUTES);
+        long segundos = TimeUnit.SECONDS.convert(remanenteMinutos, TimeUnit.MILLISECONDS);
+
+        return String.format(diferenciaLiteral, dias, horas, minutos, segundos);
+    }
+    /**
+     * Se usa solamente para probar obtenerDiferenciaLiteralConFechaActual()
+     */
+    private static void pruebaObtenerDiferenciaLiteralConFechaActual() {
+        Date fechaAEnviar = parseaStringAFecha("18-07-2020 11:34:00");
+        String diff = obtenerDiferenciaLiteralConFechaActual(fechaAEnviar);
+        System.out.println(diff);
+    }
+
+    /**
+     * Se usa solamente para probar diferenciaDiasFechaLocal()
+     */
     private static void pruebaDiferenciaFechaLocal() {
         String fechaLitUno = "01-01-2020 23:59:59";
         String fechaLitDos = "31-12-2020 23:59:59";
@@ -216,7 +287,7 @@ public class FechasUtil {
     }
 
     public static void main(String args[]) {
-        pruebaDiferenciaFechaLocal();
+
 
 //        validaFechaGregoriana("2021-12-13 04:69:31"); // error minutos
 //        validaFechaGregorianaLocal("13-12-2021 24:59:69"); // error segundos
@@ -234,6 +305,12 @@ public class FechasUtil {
 //         */
 //        Date fecha = parseaStringAFecha("13-12-2021 23:59:59");
 //        System.out.println(new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy").format(fecha));
+
+//        pruebaDiferenciaFechaLocal();
+//        pruebaDiferenciaFechasEnSegundos();
+        pruebaObtenerDiferenciaLiteralConFechaActual();
+
+
     }
 
 }
