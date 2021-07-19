@@ -3,6 +3,12 @@ package cl.lherrera.rc.fechas.principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class FechasUtil {
@@ -55,9 +61,179 @@ public class FechasUtil {
         log.info("Fin - validaFechaGregorianaLocal([{}]), es válida", fechaGregoriana);
     }
 
+    /**
+     * Obtiene la fecha actual formateada a la forma en que se ve en Chile,
+     * adicionalmente se ajusta al horario de santiago en caso que
+     * el servidor esté en otro horario.
+     */
+    public static String obtenerFechaLocalLiteral(){
+        String retorno = "";
+
+        String lenguaje = "es";
+        String pais = "CH";
+        Locale localidad = new Locale(lenguaje, pais);
+
+        Date fecha = GregorianCalendar.getInstance(localidad).getTime();
+
+        // HH es 24 horas, con minúsculas es de 0 a 12.
+        String patronLiteral = "dd-MM-yyyy HH:mm:ss";
+        SimpleDateFormat formato = new SimpleDateFormat(patronLiteral);
+        TimeZone zonaHoraria = TimeZone.getTimeZone("America/Santiago");
+        formato.setTimeZone(zonaHoraria);
+
+        retorno = formato.format(fecha);
+
+        return retorno;
+    }
+
+    /**
+     * Transforma una fecha Date a un String con el nombre literal
+     * como: [sábado 17 de julio de 2021]
+     *
+     * Nota: Ojo con inicializar el SimpleDateFormat con el Locale.
+     *       si se hace eso, se queda en inglés. Debe ser en
+     *       GregorianCalendar.getInstance(localidad).getTime();
+     *       esto retornará un tipo Date.
+     *
+     * @param fecha Date.
+     * @return fecha en palabras.
+     */
+    public static String parseaAFechaPalabras(Date fecha) {
+        String retorno = null;
+        Locale localidad = new Locale("es-CH");
+        TimeZone zonaHoraria = TimeZone.getTimeZone("America/Santiago");
+        // es mejor un tipo Date con la zona y localidad que setearlos en el
+        // SimpleDateFormat.
+        Date fechaLocal = GregorianCalendar.getInstance(zonaHoraria, localidad).getTime();
+        fechaLocal.setTime(fecha.getTime());
+
+        String patronAFechaPalabras = "EEEE d 'de' MMMM 'de' yyyy";
+        DateFormat formato = new SimpleDateFormat(patronAFechaPalabras);
+        formato.setTimeZone(zonaHoraria);
+
+        retorno = formato.format(fecha);
+        return retorno;
+    }
+
+    /**
+     * Transforma un literal a una fecha, con formato
+     *
+     *
+     * @param fechaLiteral transformada desde un string
+     * @return
+     */
+    public static Date parseaStringAFecha(String fechaLiteral) {
+        validaFechaGregorianaLocal(fechaLiteral); // "dd-MM-yyyy HH:mm:ss"
+
+        // creando una fecha con formato local
+        TimeZone zonaHoraria = TimeZone.getTimeZone("America/Santiago");
+        Locale localidad = new Locale("es", "CH");
+        Date fecha = new GregorianCalendar(zonaHoraria, localidad).getTime();
+
+        String formatoLiteral = "dd-MM-yyyy HH:mm:ss";
+        // no le pasamos el locale ni el timezone al formato, ya se los pasamos
+        // en la creación del Date. Si los pasamos en el SimpleDateFormat, no
+        // funciona pasarlo a palabras, se queda en ingles.
+//        DateFormat formato = new SimpleDateFormat(formatoLiteral, localidad);
+//        formato.setTimeZone(zonaHoraria);
+        DateFormat formato = new SimpleDateFormat(formatoLiteral, localidad);
+
+        try{
+            Date fechaPorParametroParceada = formato.parse(fechaLiteral);
+            // una vez parseada o transformada, se aplican los formatos locales.
+            fecha.setTime(fechaPorParametroParceada.getTime());
+        }catch (ParseException e){
+            // algo... con el e
+        }
+
+
+        return fecha;
+    }
+
+    /**
+     * toma una fecha y retorna un objeto mapeado con atributos útiles para
+     * operar con esta información.
+     * @param fecha
+     * @return
+     */
+    public static Map<String, Integer> separaFechaEnArreglo(Date fecha){
+        Map retorno = new HashMap<String, Integer>();
+        Calendar calendario = new GregorianCalendar();
+        calendario.setTime(fecha);
+
+        retorno.put("DAY_OF_YEAR", calendario.get(Calendar.DAY_OF_YEAR));
+        retorno.put("DAY_OF_MONTH", calendario.get(Calendar.DAY_OF_MONTH));
+        retorno.put("DAY_OF_WEEK", calendario.get(Calendar.DAY_OF_WEEK));
+        retorno.put("HOUR", calendario.get(Calendar.HOUR));
+        retorno.put("HOUR_OF_DAY", calendario.get(Calendar.HOUR_OF_DAY));
+        retorno.put("MONTH", calendario.get(Calendar.MONTH));
+        retorno.put("YEAR", calendario.get(Calendar.YEAR));
+
+
+
+        return retorno;
+    }
+
+    /**
+     * Retorna la diferencia en días entre dos fechas tipo Date.
+     *
+     * Transforma las fechas a milisegundos, y luego se operan en
+     * milisegundos, donde el resultado se transforma a días
+     * desde los milisegundos que resultaron de la resta.
+     *
+     * Nota: los milisegundos de una fecha, son medidos desde 1900.
+     * Es por este motivo que se puede transformar una fecha Date
+     * a milisegundos, desde ese momento.
+     *
+     * Nota 2: Hay que cuidar el resultado cuando se especifica la hora
+     * no contará otro día si no hay al menos 24 horas de diferencia
+     * aunque sean distintos días.
+     */
+    public static int diferenciaDiasFechaLocal(Date fechaUno, Date fechaDos) {
+        long primeraEnMilisegundos = fechaUno.getTime();
+        long segundaEnMilisegundos = fechaDos.getTime();
+        long diferenciaEnMilisegundos = primeraEnMilisegundos - segundaEnMilisegundos;
+
+        // para sacar los negativos
+        long diferenciaAbsoluta = Math.abs(diferenciaEnMilisegundos);
+
+        // convierte a días, esta diferencia en milisegundos, desde milisegundos a días.
+        long diasDeDiferencia = TimeUnit.DAYS.convert(diferenciaAbsoluta, TimeUnit.MILLISECONDS);
+
+
+        return (int) diasDeDiferencia;
+    }
+
+    private static void pruebaDiferenciaFechaLocal() {
+        String fechaLitUno = "01-01-2020 23:59:59";
+        String fechaLitDos = "31-12-2020 23:59:59";
+
+        int diff = diferenciaDiasFechaLocal(
+                parseaStringAFecha(fechaLitUno),
+                parseaStringAFecha(fechaLitDos));
+        System.out.println(diff);
+
+    }
+
     public static void main(String args[]) {
+        pruebaDiferenciaFechaLocal();
+
 //        validaFechaGregoriana("2021-12-13 04:69:31"); // error minutos
 //        validaFechaGregorianaLocal("13-12-2021 24:59:69"); // error segundos
+//        log.info("Salida: [{}]", obtenerFechaLocalLiteral());
+//        log.info("Salida: [{}]", parseaAFechaPalabras(new Date()));
+
+//        /**
+//         * se puede ver que acá solamente se le da el formato para que lo
+//         * escriba en palabras, pero no le paso el locale ni el timezone
+//         * al SimpleDateFormat, solamente el formato, para demostrar que
+//         * dentro del método, es una solución crear una fecha paralela
+//         * con los formatos locales y pasar esta fecha parseada a la
+//         * fecha con formáto, para que realmente los asuma como "nativo".
+//         *
+//         */
+//        Date fecha = parseaStringAFecha("13-12-2021 23:59:59");
+//        System.out.println(new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy").format(fecha));
     }
 
 }
