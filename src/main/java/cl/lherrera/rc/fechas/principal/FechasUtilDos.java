@@ -46,14 +46,11 @@ public class FechasUtilDos {
     private static final TimeZone ZONA_HORARIA = TimeZone.getTimeZone("America/Santiago");
 
     /**
-     * Patrón literal, que representa el formato de fecha usado típicamente en español.
+     * Herramienta la gestión de la representación de la fecha con Patrón literal,
+     * "dd-MM-yyyy HH:mm:ss" que representa el formato de fecha usado
+     * típicamente en español. Como [13-12-2020 00:00:31]
      */
-    private final static String DDMMYYYY_HH24MMSS_PTRN = "dd-MM-yyyy HH:mm:ss";
-
-    /**
-     * Herramienta la gestión de la representación de la fecha "dd-MM-yyyy HH:mm:ss"
-     */
-    private final static SimpleDateFormat formato = new SimpleDateFormat(DDMMYYYY_HH24MMSS_PTRN);
+    private final static SimpleDateFormat formato = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     /**
      * Patrón literal expresión regular, que hace match con fechas del tipo: [2021-12-13 15:59:31]
@@ -110,9 +107,7 @@ public class FechasUtilDos {
     public static String obtenerFechaLocalLiteral(){
         log.info("[obtenerFechaLocalLiteral] - Inicio");
         String retorno = "";
-
-        SimpleDateFormat formato = new SimpleDateFormat(DDMMYYYY_HH24MMSS_PTRN);
-        // formato.setTimeZone(ZONA_HORARIA); // mejor esto NO
+        // formato.setTimeZone(ZONA_HORARIA); // mejor esto NO.
         retorno = formato.format(GregorianCalendar.getInstance(ZONA_HORARIA, LOCALIDAD).getTime());
 
         log.info("[obtenerFechaLocalLiteral]: [{}] - Fin", retorno);
