@@ -170,4 +170,23 @@ public class FechasUtilDos {
         return retorno;
     }
 
+    /**
+     * DIFERENCIA DE FECHAS NOTADAS EN SEGUNDOS
+     *
+     * Obtiene la direfencia esteraa de segundos, entre dos fechas.
+     */
+    public static int diferenciaFechasEnSegundos(Date primeraFecha, Date segundaFecha) {
+        log.info("[diferenciaFechasEnSegundos - inicio] - [primeraFecha, segundaFecha] [{}, {}]",
+                primeraFecha, segundaFecha);
+        int retorno = 0;
+
+        long diferenciaEnMilisegundos = Math.abs(primeraFecha.getTime() - segundaFecha.getTime());
+        long diferenciaEnSegundos = TimeUnit.SECONDS.convert(diferenciaEnMilisegundos, TimeUnit.MILLISECONDS);
+
+        retorno = (int) diferenciaEnSegundos;
+        log.info("[diferenciaFechasEnSegundos - fin] [retorno] [{}]", retorno);
+
+        return retorno;
+    }
+
 }

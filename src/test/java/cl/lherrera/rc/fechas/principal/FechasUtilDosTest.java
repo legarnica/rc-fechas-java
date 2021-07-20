@@ -108,6 +108,7 @@ class FechasUtilDosTest {
 
     /**
      * Prueba la transformación de una fecha a palabras.
+     *
      * @throws ParseException por el parse que se hace
      *         en el mismo test, no implica funcionamiento
      *         del método que se está probando.
@@ -124,6 +125,10 @@ class FechasUtilDosTest {
 
     /**
      * prueba la diferencia en DIAS, entre DOS FECHAS.
+     *
+     * @throws ParseException por el parse que se hace
+     *         en el mismo test, no implica funcionamiento
+     *         del método que se está probando.
      */
     @Test
     void diferenciaDiasFechaLocal() throws ParseException {
@@ -135,5 +140,24 @@ class FechasUtilDosTest {
         int diferenciaEsperada = 31;
 
         assertEquals(diferenciaEsperada, diasDeDiferencia);
+    }
+
+    /**
+     * prueba la diferencia en SEGUNDOS, entre DOS FECHAS.
+     *
+     * @throws ParseException por el parse que se hace
+     *         en el mismo test, no implica funcionamiento
+     *         del método que se está probando.
+     */
+    @Test
+    void diferenciaFechasEnSegundosOK() throws ParseException {
+        SimpleDateFormat formato = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        String fechaLitUno = "01-01-2020 23:59:59";
+        String fechaLitDos = "01-01-2020 23:58:59";
+
+        int diferencia = FechasUtilDos.diferenciaFechasEnSegundos(
+                formato.parse(fechaLitUno), formato.parse(fechaLitDos));
+        int diferenciaEsperada = 60;
+        assertEquals(diferenciaEsperada, diferencia);
     }
 }
