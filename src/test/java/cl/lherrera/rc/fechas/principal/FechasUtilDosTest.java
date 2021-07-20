@@ -121,4 +121,19 @@ class FechasUtilDosTest {
         String generado = FechasUtilDos.parseaAFechaPalabras(mifecha);
         assertEquals(esperado, generado);
     }
+
+    /**
+     * prueba la diferencia en DIAS, entre DOS FECHAS.
+     */
+    @Test
+    void diferenciaDiasFechaLocal() throws ParseException {
+        SimpleDateFormat formato = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+        Date primera = formato.parse("01-01-2021 00:00:00");
+        Date segunda = formato.parse("01-02-2021 00:00:00");
+
+        int diasDeDiferencia = FechasUtilDos.diferenciaDiasFechaLocal(primera, segunda);
+        int diferenciaEsperada = 31;
+
+        assertEquals(diferenciaEsperada, diasDeDiferencia);
+    }
 }

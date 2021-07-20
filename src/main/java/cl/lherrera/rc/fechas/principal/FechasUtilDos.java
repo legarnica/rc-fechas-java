@@ -5,11 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
@@ -131,6 +128,7 @@ public class FechasUtilDos {
      * @return fecha en palabras.
      */
     public static String parseaAFechaPalabras(Date fecha) {
+        log.info("[parseaAFechaPalabras]: fecha [{}] - Inicio", fecha);
         String retorno = null;
         // es mejor un tipo Date con la zona y localidad que setearlos en el
         // SimpleDateFormat.
@@ -142,6 +140,33 @@ public class FechasUtilDos {
         formato.setTimeZone(ZONA_HORARIA);
 
         retorno = formato.format(fechaLocal);
+        log.info("[parseaAFechaPalabras]: [{}] - Fin", retorno);
+        return retorno;
+    }
+
+    /**
+     * Retorna la diferencia en días entre dos fechas tipo Date.
+     *
+     * Transforma las fechas a milisegundos, y luego se operan en
+     * milisegundos, donde el resultado se transforma a días
+     * desde los milisegundos que resultaron de la resta.
+     *
+     * Nota: los milisegundos de una fecha, son medidos desde 1900.
+     * Es por este motivo que se puede transformar una fecha Date
+     * a milisegundos, desde ese momento.
+     *
+     * Nota 2: Hay que cuidar el resultado cuando se especifica la hora
+     * no contará otro día si no hay al menos 24 horas de diferencia
+     * aunque sean distintos días.
+     */
+    public static int diferenciaDiasFechaLocal(Date fechaUno, Date fechaDos) {
+        int retorno = 0;
+        log.info("[diferenciaDiasFechaLocal] - inicio: [fechaUno, fechaDos][{}, {}] - Fin", fechaUno, fechaDos);
+        long diferenciaEnMilisegundos = Math.abs(fechaUno.getTime() - fechaDos.getTime());
+        // convierte a días, esta diferencia en milisegundos, desde milisegundos a días.
+        long diasDeDiferencia = TimeUnit.DAYS.convert(diferenciaEnMilisegundos, TimeUnit.MILLISECONDS);
+        retorno = (int) diasDeDiferencia;
+        log.info("[diferenciaDiasFechaLocal] - fin: [retorno][{}] - Fin", retorno);
         return retorno;
     }
 
