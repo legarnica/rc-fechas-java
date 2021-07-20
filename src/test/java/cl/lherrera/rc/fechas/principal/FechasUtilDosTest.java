@@ -4,9 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -160,4 +158,33 @@ class FechasUtilDosTest {
         int diferenciaEsperada = 60;
         assertEquals(diferenciaEsperada, diferencia);
     }
+
+    /**
+     * Prueba la salida literal indicando, cuanto tiempo
+     * ha pasado desde la fecha acual, este debería
+     * ser cero en todos los atriburos.
+     *
+     * En el caso de fallar, revisar Zona horaria.
+     *
+     * Nota: La fecha se genera en el test, si entre esto y la
+     * resolución del método, pasa más de un segundo
+     * el test fallará. Esto se puede solucionar
+     * reemplazando con un contains y lo
+     * truncamos hasta las horas.
+     * salidaTextual.contains("0 días, 0 horas, 0 minutos");
+     * Esta operación no debería tardar más de un minuto, en
+     * el caso extremo, llevarlo a horas.
+     *
+     * @throws ParseException por el parse que se hace
+     *         en el mismo test, no implica funcionamiento
+     *         del método que se está probando.
+     */
+    @Test
+    void obtenerDiferenciaLiteralConFechaActualOk() throws ParseException {
+        Date ahora = new Date();
+        String salidaTextual = FechasUtilDos.obtenerDiferenciaLiteralConFechaActual(ahora);
+        assertEquals("0 días, 0 horas, 0 minutos y 0 segundos", salidaTextual);
+
+    }
+
 }

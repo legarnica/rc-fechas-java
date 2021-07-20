@@ -49,7 +49,7 @@ public class FechasUtilDos {
      * "dd-MM-yyyy HH:mm:ss" que representa el formato de fecha usado
      * típicamente en español. Como [13-12-2020 00:00:31]
      */
-    private final static SimpleDateFormat formato = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    private final static SimpleDateFormat DATEFORMAT_LOCAL = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
     /**
      * Patrón literal expresión regular, que hace match con fechas del tipo: [2021-12-13 15:59:31]
@@ -107,7 +107,7 @@ public class FechasUtilDos {
         log.info("[obtenerFechaLocalLiteral] - Inicio");
         String retorno = "";
         // formato.setTimeZone(ZONA_HORARIA); // mejor esto NO.
-        retorno = formato.format(GregorianCalendar.getInstance(ZONA_HORARIA, LOCALIDAD).getTime());
+        retorno = DATEFORMAT_LOCAL.format(GregorianCalendar.getInstance(ZONA_HORARIA, LOCALIDAD).getTime());
 
         log.info("[obtenerFechaLocalLiteral]: [{}] - Fin", retorno);
         return retorno;
@@ -188,5 +188,72 @@ public class FechasUtilDos {
 
         return retorno;
     }
+    /**
+     * PALABRAS CON EL TIEMPO TRASCURRIDO.
+     *
+     * Obtiene un literal con la difererencia desde una fecha a la actual,
+     * como las que se entrega en los post de redes sociales para indicar
+     * la antiguedad de una noticia. Una salida de ejemplo sería:
+     * "366 días, 0 horas, 1 minutos y 16 segundos".
+     *
+     * Nota: La forma en que se entrega el literal puede variar, se
+     * podría ir concatenando una cadena si es que los valores
+     * son superiores a cero, si se quiere mostrar solamente
+     * aquellos que poseen valor, entre otros.
+     *
+     * Nota 2: Esta forma utiliza el cálculo de milisegundos, también es una alternativa el
+     * obtener los milisegundos y cada 3600000 calcular una hora por ejemplo, aunque
+     * el approach utilizado me parece más correcto debido a que se utiliza
+     * la API oficial de java.
+     *
+     * Nota 3: Se definen las localidades en ambas fechas, la actual que se calcula por sistema
+     * y la entregada como parámetro. Esto para que tenga sentido realizar operaciones entre
+     * fechas homogeneas. Por ejemplo puede llegar una fecha en UTC, entonces se asume que se quiere
+     * constrastar con una fecha del equipo (local), esta estará con el TimeZone local, por eso
+     * la fecha entregada por parámetro se reconfigura a local en este método.
+     */
+    public static String obtenerDiferenciaLiteralConFechaActual(Date fechaNoActual) {
+        String diferenciaLiteral = "%d días, %d horas, %d minutos y %d segundos";
 
+        Date fechaActual = formateaZonaHorariaALaFecha(new Date());
+        Date copiaLocalDeFechaNoActual = formateaZonaHorariaALaFecha(fechaNoActual);
+
+        long diffMilisegundos = FechasUtilDos.obtenerDiferenciaEnMiliSegundos(fechaActual, copiaLocalDeFechaNoActual);
+        long dias = FechasUtilDos.diferenciaDiasFechaLocal(fechaActual, copiaLocalDeFechaNoActual);
+
+        long remanenteDias = diffMilisegundos - TimeUnit.MILLISECONDS.convert(dias, TimeUnit.DAYS);
+        long horas = TimeUnit.HOURS.convert(remanenteDias, TimeUnit.MILLISECONDS);
+        long remanenteHoras = remanenteDias - TimeUnit.MILLISECONDS.convert(horas, TimeUnit.HOURS);
+        long minutos = TimeUnit.MINUTES.convert(remanenteHoras, TimeUnit.MILLISECONDS);
+        long remanenteMinutos = remanenteHoras - TimeUnit.MILLISECONDS.convert(minutos, TimeUnit.MINUTES);
+        long segundos = TimeUnit.SECONDS.convert(remanenteMinutos, TimeUnit.MILLISECONDS);
+
+        return String.format(diferenciaLiteral, dias, horas, minutos, segundos);
+    }
+
+    /**
+     * Obtiene la representación en milisegundos, de la diferencia entre dos fechas
+     *
+     * @param fechaUno
+     * @param fechaDos
+     * @return Long diferencia en milisegundos.
+     */
+    private static Long obtenerDiferenciaEnMiliSegundos(Date fechaUno, Date fechaDos) {
+        return Math.abs(fechaUno.getTime() - fechaDos.getTime());
+    }
+
+    /**
+     * Aplica el formáto local, a una fecha, para realizar operaciones con la hora local y en
+     * español. Adicionalmente, la zona horaria permite retornar una fecha con esa zona
+     * y no dependerá si el servidor está con otra zona.
+     *
+     * @param fecha fecha a aplicar el formato local.
+     * @return Date fecha con formato local.
+     */
+    private static Date formateaZonaHorariaALaFecha(Date fecha) {
+        Calendar calendarioLocal = GregorianCalendar.getInstance(ZONA_HORARIA, LOCALIDAD);
+        calendarioLocal.setTime(fecha);
+
+        return calendarioLocal.getTime();
+    }
 }
