@@ -2,10 +2,8 @@ package cl.lherrera.rc.fechas.principal;
 
 import org.junit.jupiter.api.Test;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,4 +37,48 @@ class FechasUtilDosTest {
         assertTrue(esInvalida);
     }
 
+    /**
+     * Prueba validación ok de fecha en formato local chileno.
+     */
+    @Test
+    void validaEstructuraFechaEsOK() {
+        List<String> fechas = Arrays.asList(
+                "12-12-2020 23:59:31",
+                "13-12-2020 00:00:31",
+                "31-12-2020 07:37:31");
+
+        for(String fechaLiteral: fechas) {
+            FechasUtilDos.validaEstructuraFechaEs(fechaLiteral);
+        }
+    }
+
+    /**
+     * Prueba el reconocimiento y/o evaluación de la estructura
+     * de una fecha, con formato inválido.
+     *
+     * Nota: Es posible adicionar más fechas; pero deben
+     * ser inválidas.
+     */
+    @Test
+    void validaEstructuraFechaEsNok() {
+        List<String> fechas = Arrays.asList(
+                "12-12-2020 24:59:31",
+                "13-12-2020 00:00:31 ",
+                "13-12-202000:00:31",
+                "13-12-2020 00:00:60",
+                "13/12/2020 00:00:00",
+                "12-12-2020 24:59:31",
+                "12-12-2020 24:59:31",
+                "13-13-2020 00:00:31");
+        int contadorErrores = 0;
+        for(String fechaLiteral: fechas) {
+            try{
+                FechasUtilDos.validaEstructuraFechaEs(fechaLiteral);
+            }catch (Exception e) {
+                contadorErrores++;
+            }
+        }
+
+        assertEquals(fechas.size(), contadorErrores);
+    }
 }

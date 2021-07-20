@@ -303,12 +303,13 @@ public class FechasUtil {
 //         * fecha con formáto, para que realmente los asuma como "nativo".
 //         *
 //         */
-//        Date fecha = parseaStringAFecha("13-12-2021 23:59:59");
-//        System.out.println(new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy").format(fecha));
+
+        Date fecha = parseaStringAFecha("13-12-2021 23:59:59");
+        System.out.println(new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy").format(fecha));
 
 //        pruebaDiferenciaFechaLocal();
 //        pruebaDiferenciaFechasEnSegundos();
-        pruebaObtenerDiferenciaLiteralConFechaActual();
+//        pruebaObtenerDiferenciaLiteralConFechaActual();
 
 
     }
