@@ -81,4 +81,24 @@ class FechasUtilDosTest {
 
         assertEquals(fechas.size(), contadorErrores);
     }
+
+    /**
+     * Se utiliza el método obtenerFechaLocalLiteral, para generar la fecha,
+     * luego esta se constrasta con el validador que ya tenemos para
+     * determinar si el literal generado posee una estructura válida.
+     *
+     * No podemos simplemente constrastarlo con una fecha generada,
+     * ya que esta fecha es denámica.
+     */
+    @Test
+    void obtenerFechaLocalLiteralOK() {
+        String fechaGeneradaComoCadena = FechasUtilDos.obtenerFechaLocalLiteral();
+        boolean esValida = true;
+        try {
+            FechasUtilDos.validaEstructuraFechaEs(fechaGeneradaComoCadena);
+        } catch (Exception e) {
+            esValida = false;
+        }
+        assertTrue(esValida);
+    }
 }
