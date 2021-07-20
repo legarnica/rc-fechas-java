@@ -3,6 +3,7 @@ package cl.lherrera.rc.fechas.principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -113,4 +114,34 @@ public class FechasUtilDos {
         log.info("[obtenerFechaLocalLiteral]: [{}] - Fin", retorno);
         return retorno;
     }
+
+    /**
+     * PARSEO DE FECHA A LITERALES EN ESPAÑOL.
+     *
+     * Transforma una fecha Date a un String con el nombre literal
+     * como: [sábado 17 de julio de 2021]
+     *
+     * Nota: Ojo con inicializar el SimpleDateFormat con el Locale.
+     *       si se hace eso, se queda en inglés. Debe ser en
+     *       GregorianCalendar.getInstance(localidad).getTime();
+     *       esto retornará un tipo Date.
+     *
+     * @param fecha Date.
+     * @return fecha en palabras.
+     */
+    public static String parseaAFechaPalabras(Date fecha) {
+        String retorno = null;
+        // es mejor un tipo Date con la zona y localidad que setearlos en el
+        // SimpleDateFormat.
+        Calendar calendarioQuePasaAEspaniolChile = GregorianCalendar.getInstance(ZONA_HORARIA, LOCALIDAD);
+        calendarioQuePasaAEspaniolChile.setTime(fecha);
+        Date fechaLocal = calendarioQuePasaAEspaniolChile.getTime();
+
+        DateFormat formato = new SimpleDateFormat("EEEE d 'de' MMMM 'de' yyyy");
+        formato.setTimeZone(ZONA_HORARIA);
+
+        retorno = formato.format(fechaLocal);
+        return retorno;
+    }
+
 }

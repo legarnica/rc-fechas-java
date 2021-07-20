@@ -2,10 +2,14 @@ package cl.lherrera.rc.fechas.principal;
 
 import org.junit.jupiter.api.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FechasUtilDosTest {
 
@@ -100,5 +104,21 @@ class FechasUtilDosTest {
             esValida = false;
         }
         assertTrue(esValida);
+    }
+
+    /**
+     * Prueba la transformación de una fecha a palabras.
+     * @throws ParseException por el parse que se hace
+     *         en el mismo test, no implica funcionamiento
+     *         del método que se está probando.
+     */
+    @Test
+    void parseaAFechaPalabras() throws ParseException {
+        SimpleDateFormat formato = new SimpleDateFormat("dd-MM-yyyy");
+        Date mifecha = formato.parse("13-12-2020");
+
+        String esperado = "domingo 13 de diciembre de 2020";
+        String generado = FechasUtilDos.parseaAFechaPalabras(mifecha);
+        assertEquals(esperado, generado);
     }
 }
