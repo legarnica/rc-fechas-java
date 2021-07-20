@@ -12,6 +12,6 @@ Conjunto de métodos utilitarios para el manejo de fechas. Los servicios impleme
 
 - Toma una fecha y aplica el formáto local indicado anteriormente con zona horaria y localidad.
 
-- Trasforma un `Date` en una salida de cadena como la siguiente: `366 días, 0 horas, 1 minutos y 16 segundos`.
+- Trasforma un `Date` en una salida de cadena como la siguiente: `366 días, 0 horas, 1 minutos y 16 segundos` que representa la diferencia entre el `Date` entregado como argumento y la fecha actual.
 
 > Dudas se pueden resolver en los Test o comentarios extras. Al utilizar en productivo, convendría realizar una refactorización, ya que el objeto en ese contexto será más funcional y menos explicativo.
